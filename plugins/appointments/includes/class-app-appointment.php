@@ -326,7 +326,7 @@ function appointments_insert_appointment( $args ) {
 
 	appointments_update_user_appointment_data( $app_id );
 
-	//do_action( 'app_new_appointment', $app_id );
+	do_action( 'app_new_appointment', $app_id );
 	do_action( 'wpmudev_appointments_insert_appointment', $app_id );
 
 	return $app_id;
