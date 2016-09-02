@@ -180,6 +180,25 @@
 			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 			dbDelta($sql_one);
 		}
+
+		global $wpdb;
+		
+		$mailtemplates = "visa_transaction";
+		
+		if($wpdb->get_var('SHOW TABLES LIKE "' . $mailtemplates .'"') != $mailtemplates){
+			$sql_one = "CREATE TABLE " . $mailtemplates . "(
+			  id int(11) NOT NULL AUTO_INCREMENT,
+			   transaction_on datetime NOT NULL,
+			   gift_id tinytext NOT NULL,
+			   blog_id text NOT NULL,
+			   amout tinytext NOT NULL, 
+			   endorser_id text NOT NULL,
+			   status tinytext NOT NULL,
+			  PRIMARY KEY  (id) ) ENGINE=InnoDB";
+
+			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+			dbDelta($sql_one);
+		}
 	}
 	
 	function Endorsement_uninstall()

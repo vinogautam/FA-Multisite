@@ -8,13 +8,14 @@ class Endorsements_admin{
 
     function add_plugin_pages() {
         
-        if(is_multisite() && is_super_admin() || current_user_can('manage_options')) {
+        if(is_multisite() && is_super_admin() && is_main_site()) {
              
             add_menu_page( 'Endorsements', 'Endorsements', 'manage_options', 'ntmEndorsements', array( $this, 'create_ntmadmin_page' ));
 			add_submenu_page( 'ntmEndorsements', 'Endorsements', 'Add Endorser',  9, 'ntmEndorsements&tab=add_endorsers', array( &$this, 'mail_template'));
 			add_submenu_page( 'ntmEndorsements', 'Endorsements', 'Email Template',  9, 'mail_template', array( &$this, 'mail_template'));
 			add_submenu_page( 'ntmEndorsements', 'Endorsements', 'Send Gift By Manual',  9, 'send_gift_manual', array( &$this, 'send_gift_manual'));
 			add_submenu_page( 'ntmEndorsements', 'Endorsements', 'Gift Transaction History',  9, 'gift_transaction_history', array( &$this, 'gift_transaction_history'));
+			add_submenu_page( 'ntmEndorsements', 'Endorsements', 'Visa Transaction History',  9, 'visa_transaction_history', array( &$this, 'visa_transaction_history'));
 			add_submenu_page( 'ntmEndorsements', 'Endorsements', 'Settings',  9, 'ntmEndorsements_settings', array( &$this, 'settingsPage'));		
         
         } else {
@@ -1084,6 +1085,35 @@ class Endorsements_admin{
 						<script src="<?php _e(NTM_PLUGIN_URL);?>/assets/js/jquery.colorbox-min.js"></script>
 						<?php
 							$endosersTable = new GiftTable();
+							$endosersTable->prepare_items();
+							$endosersTable->display();
+						?>
+					</form>
+				</div>
+			</div>
+		</div> 
+		<?php
+	}
+
+	function visa_transaction_history()
+	{
+		global $wpdb;
+
+		if(isset($_GET['action']) && $_GET['action'] == 'change_status')
+		{
+			$wpdb->update("visa_transaction", array('status' => 1), array('id' => $_GET['id']));
+		}
+		?>
+		<div id="poststuff" class="wrap">
+		<h2>Visa Transaction Details</h2>
+		
+			<div class="postbox">
+				<div class="inside group">
+					<form name="myform" method="post" >
+						<link rel="stylesheet" href="<?php _e(NTM_PLUGIN_URL);?>/assets/css/colorbox.css" />
+						<script src="<?php _e(NTM_PLUGIN_URL);?>/assets/js/jquery.colorbox-min.js"></script>
+						<?php
+							$endosersTable = new VisaTable();
 							$endosersTable->prepare_items();
 							$endosersTable->display();
 						?>

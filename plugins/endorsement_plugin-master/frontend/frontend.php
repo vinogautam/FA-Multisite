@@ -156,7 +156,15 @@ Class NTM_Frontend
 		$user_info = get_userdata($result->endorser_id);
 		if(isset($_POST['gifts']))
 		{
-					$headers = array('Authorization: Bearer ' . $option['api'], 'Accept: application/json', 'Content-Type: application/json');
+			if($_POST['gifts'] == 'visa')
+			{
+				$status = true;
+				$wpdb->update($wpdb->prefix . "gift_transaction", array('gift_sent' => 1, 'giftbitref_id' => 'visa'), array('id' => $id));
+				$wpdb->insert("visa_transaction", array('endorser_id' => $result->endorser_id, 'gift_id' => $id, 'transaction_on' => date("Y-m-d H:i:s"), "blog_id" => get_current_blog_id(), 'amount' => $result->amout));
+			}
+			else
+			{
+				$headers = array('Authorization: Bearer ' . $option['api'], 'Accept: application/json', 'Content-Type: application/json');
 					$data_string = array(
 									 'subject' => 'Endorser Gift',
 									 'message' => 'Test message',
@@ -167,30 +175,31 @@ Class NTM_Frontend
 									 'delivery_type' => 'SHORTLINK',
 									 'id' => time()
 									);
-					//echo json_encode($data_string);				
-					if(isset($option['sandbox']))
-						$ch = curl_init("https://testbedapp.giftbit.com/papi/v1/campaign");
-					else	
-						$ch = curl_init("https://api.giftbit.com/papi/v1/campaign");
-					curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-					curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-					curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data_string));
-					curl_setopt($ch, CURLOPT_POST, 1);
-					curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-					$curl_response2 = curl_exec($ch);
-					curl_close($ch);
-					
-					$option = get_option('giftbit');
-					$option['amount'] = $option['amount'] - $amount;
-					update_option("giftbit", $option);
-					
-					$status = true;
-					
-					//echo '<pre>'; print_r(json_decode($curl_response2));
-					
-					$giftbitref_id = json_decode($curl_response2)->campaign->uuid;
-					
-					$wpdb->update($wpdb->prefix . "gift_transaction", array('gift_sent' => 1, 'giftbitref_id' => $giftbitref_id), array('id' => $id));
+				//echo json_encode($data_string);				
+				if(isset($option['sandbox']))
+					$ch = curl_init("https://testbedapp.giftbit.com/papi/v1/campaign");
+				else	
+					$ch = curl_init("https://api.giftbit.com/papi/v1/campaign");
+				curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+				curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data_string));
+				curl_setopt($ch, CURLOPT_POST, 1);
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+				$curl_response2 = curl_exec($ch);
+				curl_close($ch);
+				
+				$option = get_option('giftbit');
+				$option['amount'] = $option['amount'] - $amount;
+				update_option("giftbit", $option);
+				
+				$status = true;
+				
+				//echo '<pre>'; print_r(json_decode($curl_response2));
+				
+				$giftbitref_id = json_decode($curl_response2)->campaign->uuid;
+				
+				$wpdb->update($wpdb->prefix . "gift_transaction", array('gift_sent' => 1, 'giftbitref_id' => $giftbitref_id), array('id' => $id));
+			}
 		}
 		else
 		{
@@ -218,6 +227,10 @@ Class NTM_Frontend
 						<form name="myform" method="post" >
 							<?php if(count(json_decode($curl_response3)->marketplace_gifts)){?>
 							<ul>
+								<li>
+									<input onchange="document.myform.submit();" id="vendor_visa" value="visa" type="radio" name="gifts">
+									<label for="vendor_visa">Visa</label>
+								</li>
 								<?php foreach(json_decode($curl_response3)->marketplace_gifts as $res){?>
 								<li>
 									<input onchange="document.myform.submit();" id="vendor_<?php _e($res->id);?>" value="<?php _e($res->id);?>" type="radio" name="gifts">
