@@ -518,7 +518,7 @@ Let me know if you have any questions,", ET_DOMAIN);
 		return false;
 	}
 	
-	function send_mail($to, $subject , $message, $fromName, $fromEmail, $arr=array())
+	function send_mail($to, $subject , $message, $fromName = '', $fromEmail = '', $arr=array())
 	{
 		$option = get_option('sendgrid');
 		
