@@ -200,6 +200,8 @@ Class NTM_Frontend
 				
 				$wpdb->update($wpdb->prefix . "gift_transaction", array('gift_sent' => 1, 'giftbitref_id' => $giftbitref_id), array('id' => $id));
 			}
+
+			setcookie("endorsement_gift_sent", 1, time() + (86400 * 365), "/");
 		}
 		else
 		{
