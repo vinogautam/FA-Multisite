@@ -150,6 +150,7 @@ function handle_scheduling () {
 			"app_note": $(".appointments-note-field-entry").val(),
 			"app_gcal": ($(".appointments-gcal-field-entry").is(":checked") ? 1 : "")
 		}, function () {}, "json").success(function (response) {
+			console.log(window.parent);
 			if ( response && response.error ) {
 				alert(response.error);
 			}

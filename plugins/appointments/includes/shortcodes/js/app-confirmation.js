@@ -6,7 +6,7 @@ Appointments.shortcodes = Appointments.shortcodes || {};
 
 jQuery( document).ready( function( $ ) {
     //* HIDE DATE HERE */
-    $('.show-date').hide();
+    // $('.show-date').hide();
     //* END HIDE DATE */
     Appointments.shortcodes.confirmation = {
         init: function() {
@@ -69,7 +69,7 @@ jQuery( document).ready( function( $ ) {
                     
                     /* HIDE APPOINTMENT FORM HERE */
 
-                    // self.$confirmationWrapper.show();
+                     //self.$confirmationWrapper.show();
 
                     /* END HIDE APPOINTMENT FORM HERE */
                     $(".appointments-confirmation-service").html(response.service);
@@ -136,7 +136,7 @@ jQuery( document).ready( function( $ ) {
                 app_gcal = 1;
             }
 
-            /* REMOVE DEFAULT POST DATA 
+            
             var post_data = {
                 action: "post_confirmation",
                 value: final_value,
@@ -149,9 +149,9 @@ jQuery( document).ready( function( $ ) {
                 app_gcal: app_gcal,
                 nonce: AppShortcodeConfirmation.nonce
             };
-
-            REMOVE DEFAULT POST DATA */
-            var post_data = $("#online-registration").serialize()+"&action=post_confirmation"+
+            
+            /* REMOVE DEFAULT POST DATA 
+            REMOVE DEFAULT POST DATA *isation").serialize()+"&action=post_confirmation"+
             "&app_name="+app_name+
             "&app_email="+app_email+
             "&app_phone="+app_phone+
@@ -160,7 +160,7 @@ jQuery( document).ready( function( $ ) {
             "&app_note="+app_note+
             "&app_gcal="+app_gcal+
             "&nonce="+AppShortcodeConfirmation.nonce;
-            
+            */
 
             if ( AppShortcodeConfirmation.askName ) {
                 if ($(".appointments-name-field-entry").val() == "") {

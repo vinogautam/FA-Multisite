@@ -31,7 +31,7 @@
 		add_role( 'agents', 'Agents', array( 'read' => true, 'level_0' => true ) );
 		
 		add_action( 'wp_ajax_get_endorsement', array( &$this, 'get_endorsement'), 100 );
-		
+		add_action( 'widgets_init', array( &$this, 'register_foo_widget') );
 		$ntmadmin = new Endorsements_admin();
 		
 		if(isset($_GET['ref']))
@@ -42,6 +42,10 @@
 		$this->create_tabes();
 	}
 	
+	function register_foo_widget() {
+    	register_widget( 'CloudSponge_Widget' );
+	}
+
 	function get_endorsement()
 	{
 		global $wpdb;
