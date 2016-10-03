@@ -16,11 +16,19 @@ class CloudSponge_Widget extends WP_Widget {
 	}
 
 	public function widget( $args, $instance ) {
+
+		$user = wp_get_current_user();
+		if(is_user_logged_in() && !in_array( 'endorser', (array) $user->roles))
+		return;
+
+
 		echo $args['before_widget'];
 		if ( ! empty( $instance['title'] ) ) {
 			echo $args['before_title'] . apply_filters( 'widget_title', $instance['title'] ) . $args['after_title'];
 		}
 		?>
+		<link rel="stylesheet" type="text/css" href="<?php _e(NTM_PLUGIN_URL);?>/assets/css/ckeditor.css" media="all" />
+    	<script type='text/javascript' src='<?php _e(NTM_PLUGIN_URL);?>/assets/js/ckeditor/ckeditor.js'></script>
 		<script>
 		  (function(u){
 			var d=document,s='script',a=d.createElement(s),m=d.getElementsByTagName(s)[0];
@@ -72,6 +80,37 @@ class CloudSponge_Widget extends WP_Widget {
 
 			<textarea name="contact_list" id="contact_list" rows="5" cols="73"></textarea>
 		</div>
+
+		<span>Or</span>
+		<p>Add Contact directly</p>
+		<p>Name: <input type="text" id="contactname">Email: <input type="email" id="contactemail"><button onclick="addcontact(jQuery);">Add</button></p>
+		<form name="myform" method="post" >
+			<textarea name="contact_list" id="contact_list" rows="5" cols="73"></textarea>
+			<br><br>
+			<textarea cols="80" id="editor" name="endorse_letter" rows="10"><?php _e($mailtemplate);?></textarea>
+			<script>
+				CKEDITOR.replace( 'editor' );
+				function addcontact($){
+					if(!$("#contactemail").val())
+						return false;
+					
+					contact = $("#contactname").val()+' <'+$("#contactemail").val()+'>';
+					if($.trim($("#contact_list").val()))
+						$("#contact_list").val($("#contact_list").val()+', '+contact);
+					else
+						$("#contact_list").val(contact);
+					
+					$("#contactname").val('');
+					$("#contactemail").val('');
+				}
+			</script>
+			<br>
+			<p class="submit">
+			<input type="hidden" name="from_widget">
+			<input name="send_invitation" class="button-primary seeker_btn" value="<?php _e('Invite your friends'); ?>" type="submit" />
+			</p>
+        </form>
+
 		<?php
 		echo $args['after_widget'];
 	}

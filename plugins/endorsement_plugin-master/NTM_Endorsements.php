@@ -13,14 +13,17 @@
  
  include 'includes.php';
  
- global $endorsements, $ntmadmin, $ntm_mail;
+ global $endorsements, $ntmadmin, $ntm_mail, $ntm_front;
  $endorsements = new Endorsements();
  $ntm_mail = new NTM_mail_template();
- 
+ $ntm_front = new NTM_Frontend();
+
  Class Endorsements
  {
 	function Endorsements()
 	{
+		global $ntm_front;
+
 		register_activation_hook(__FILE__, array( &$this, 'Endorsement_install'));
 		//register_uninstall_hook(__FILE__, array( &$this, 'Endorsement_uninstall'));
 		
@@ -40,10 +43,53 @@
 			add_action( 'wp_footer', array( &$this, 'affiliate_script'), 100 );
 		
 		$this->create_tabes();
+
+		add_action( 'init', array( &$this, 'autologin') );
+		add_filter( 'login_redirect', array( &$this, 'my_login_redirect'), 10, 3 );
 	}
 	
+	function my_login_redirect( $redirect_to, $request, $user ) {
+		//is there a user to check?
+		
+		if ( isset( $user->roles ) && is_array( $user->roles ) ) {
+			//check for admins
+			if ( in_array( 'endorser', $user->roles ) ) {
+				return get_permalink(get_option('ENDORSEMENT_FRONT_END'));
+			} else {
+				return $redirect_to;
+			}
+		} else {
+			return $redirect_to;
+		}
+	}
+
+	function autologin()
+	{
+		if(isset($_GET['autologin']) && !is_user_logged_in())
+			NTM_Frontend::check_login();
+		elseif(isset($_POST['from_widget']) && isset($_POST['send_invitation']))
+			NTM_Frontend::frontend_action();
+
+	}
+
 	function register_foo_widget() {
     	register_widget( 'CloudSponge_Widget' );
+	}
+
+	function add_points($data)
+	{
+		global $wpdb;
+
+		$wpdb->insert($wpdb->prefix . "points_transaction", $data);
+	}
+
+	function get_endorser_points($endorser_id)
+	{
+		global $wpdb;
+
+		$result = $wpdb->get_row("select * from ".$wpdb->prefix . "points_transaction order by id desc");
+
+		return isset($result->new_balance) ? $result->new_balance : 0;
 	}
 
 	function get_endorsement()
@@ -185,8 +231,6 @@
 			dbDelta($sql_one);
 		}
 
-		global $wpdb;
-		
 		$mailtemplates = "visa_transaction";
 		
 		if($wpdb->get_var('SHOW TABLES LIKE "' . $mailtemplates .'"') != $mailtemplates){
@@ -198,6 +242,25 @@
 			   amout tinytext NOT NULL, 
 			   endorser_id text NOT NULL,
 			   status tinytext NOT NULL,
+			  PRIMARY KEY  (id) ) ENGINE=InnoDB";
+
+			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+			dbDelta($sql_one);
+		}
+
+		$mailtemplates = "points_transaction";
+		
+		if($wpdb->get_var('SHOW TABLES LIKE "' . $mailtemplates .'"') != $mailtemplates){
+			$sql_one = "CREATE TABLE " . $mailtemplates . "(
+			  id int(11) NOT NULL AUTO_INCREMENT,
+			   transaction_on datetime NOT NULL,
+			   points int(11),
+			   endorser_id int(11),
+			   blog_id int(11),
+			   credit int(1),
+			   debit int(1),
+			   new_balance int(11),
+			   type tinytext NOT NULL,
 			  PRIMARY KEY  (id) ) ENGINE=InnoDB";
 
 			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
@@ -217,9 +280,9 @@
 	
 	function Endorsement_frontend()
 	{
-		$ntm_front_end = new NTM_Frontend();
-		
-		return $ntm_front_end->frontend();
+		global $ntm_front;
+
+		return $ntm_front->frontend();
 	}
 	
 	function Endorsement_load_js_and_css()

@@ -9,11 +9,11 @@ Class NTM_Frontend
 			$this->select_vendor(base64_decode(base64_decode($_GET['gift'])));
 			return false;
 		}
-		elseif(!$this->check_login())
+		/*elseif(!$this->check_login())
 		{
 			echo "Invalid Autologin link!!!";
 			return false;
-		}
+		}*/
 		
 		global $ntm_mail, $current_user, $wpdb;
 	
@@ -270,7 +270,7 @@ Class NTM_Frontend
 	}
 	
 	function frontend_action(){
-		global $wpdb, $current_user, $ntm_mail;
+		global $wpdb, $current_user, $ntm_mail, $endorsements;
 		
 		if(isset($_POST['send_invitation']))
 		{
@@ -294,6 +294,21 @@ Class NTM_Frontend
 			
 			update_user_meta($current_user->ID, "invitation_sent", (get_user_meta($current_user->ID, "invitation_sent", true) + count($contact_list)));
 			
+			if(isset($_POST['from_widget']))
+			{
+				$points = 5;
+				$type = 'Mail Invitation from Widget';
+			}
+			else
+			{
+				$points = 25;
+				$type = 'Mail Invitation from Endorsement page';
+			}
+
+			$new_balance = $endorsements->get_endorser_points($current_user->ID) + $points;
+			$data = array('points' => $points, 'credit' => 1, 'endorser_id' => $current_user->ID, 'new_balance' => $new_balance, 'transaction_on' => date("Y-m-d H:i:s"), 'type' => $type);
+			$endorsements->add_points($data);
+
 			return true;
 		}
 		return false;
