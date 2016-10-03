@@ -92,6 +92,15 @@
 		return isset($result->new_balance) ? $result->new_balance : 0;
 	}
 
+	function get_endorser_transactions($endorser_id)
+	{
+		global $wpdb;
+
+		$result = $wpdb->get_results("select * from ".$wpdb->prefix . "points_transaction order by id desc");
+
+		return $result;
+	}
+
 	function get_endorsement()
 	{
 		global $wpdb;
