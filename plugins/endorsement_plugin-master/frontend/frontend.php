@@ -289,25 +289,27 @@ Class NTM_Frontend
 					"tracker_id" => wp_generate_password( $length=12, $include_standard_special_chars=false )
 				);
 				$wpdb->insert($wpdb->prefix . "endorsements", $info);
-				$ntm_mail->send_invitation_mail($info, $current_user->ID, $wpdb->insert_id, $endorse_letter);
+				$send_mail = $ntm_mail->send_invitation_mail($info, $current_user->ID, $wpdb->insert_id, $endorse_letter);
+				if($send_mail)
+				{
+					if(isset($_POST['from_widget']))
+					{
+						$points = 5;
+						$type = 'Mail Invitation from Widget';
+					}
+					else
+					{
+						$points = 25;
+						$type = 'Mail Invitation from Endorsement page';
+					}
+
+					$new_balance = $endorsements->get_endorser_points($current_user->ID) + $points;
+					$data = array('points' => $points, 'credit' => 1, 'endorser_id' => $current_user->ID, 'new_balance' => $new_balance, 'transaction_on' => date("Y-m-d H:i:s"), 'type' => $type);
+					$endorsements->add_points($data);
+				}
 			}
 			
 			update_user_meta($current_user->ID, "invitation_sent", (get_user_meta($current_user->ID, "invitation_sent", true) + count($contact_list)));
-			
-			if(isset($_POST['from_widget']))
-			{
-				$points = 5;
-				$type = 'Mail Invitation from Widget';
-			}
-			else
-			{
-				$points = 25;
-				$type = 'Mail Invitation from Endorsement page';
-			}
-
-			$new_balance = $endorsements->get_endorser_points($current_user->ID) + $points;
-			$data = array('points' => $points, 'credit' => 1, 'endorser_id' => $current_user->ID, 'new_balance' => $new_balance, 'transaction_on' => date("Y-m-d H:i:s"), 'type' => $type);
-			$endorsements->add_points($data);
 
 			return true;
 		}

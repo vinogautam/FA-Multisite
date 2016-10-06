@@ -548,10 +548,11 @@ Let me know if you have any questions,", ET_DOMAIN);
 		try {
 			$sendgrid->send($email);
 		} catch(\SendGrid\Exception $e) {
-			echo $e->getCode();
+			/*echo $e->getCode();
 			foreach($e->getErrors() as $er) {
 				echo $er;
-			}
+			}*/
+			return false;
 		}
 
 		//if(!$mail->Send()) {

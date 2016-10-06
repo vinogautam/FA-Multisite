@@ -140,6 +140,12 @@
 				update_user_meta($track_link[1], "tracked_invitation", (get_user_meta($track_link[1], "tracked_invitation", true) + 1));
 				update_user_meta($track_link[1], "tracked_counter", (get_user_meta($track_link[1], "tracked_counter", true) + 1));
 				setcookie("endorsement_tracked", true, time() + (86400 * 365), "/");
+
+				$points = 125;
+				$type = 'Successfull conversion from email invitation';
+
+				$new_balance = $endorsements->get_endorser_points($track_link[1]) + $points;
+				$data = array('points' => $points, 'credit' => 1, 'endorser_id' => $track_link[1], 'new_balance' => $new_balance, 'transaction_on' => date("Y-m-d H:i:s"), 'type' => $type);
 			}
 		}
 		else
@@ -147,6 +153,12 @@
 			update_user_meta($track_link[0], "tracked_".$track_link[1]."_invitation", (get_user_meta($track_link[1], "tracked_".$track_link[1]."_invitation", true) + 1));
 			update_user_meta($track_link[0], "tracked_".$track_link[1]."_counter", (get_user_meta($track_link[1], "tracked_".$track_link[1]."_counter", true) + 1));
 			setcookie("endorsement_tracked", true, time() + (86400 * 365), "/");
+
+			$points = 125;
+			$type = 'Successfull conversion from '.$track_link[1];
+
+			$new_balance = $endorsements->get_endorser_points($track_link[0]) + $points;
+			$data = array('points' => $points, 'credit' => 1, 'endorser_id' => $track_link[0], 'new_balance' => $new_balance, 'transaction_on' => date("Y-m-d H:i:s"), 'type' => $type);
 		}
 	}
 	
