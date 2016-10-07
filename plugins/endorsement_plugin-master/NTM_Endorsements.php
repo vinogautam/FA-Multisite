@@ -28,6 +28,9 @@
 		//register_uninstall_hook(__FILE__, array( &$this, 'Endorsement_uninstall'));
 		
 		add_shortcode('ENDORSEMENT_FRONT_END', array( &$this, 'Endorsement_frontend'));
+		add_shortcode('ENDORSER_REDEEM_REWARD', array( &$this, 'Endorsement_redeem_requests'));
+		add_shortcode('ENDORSER_POINTS_TRANSACTION', array( &$this, 'Endorsement_points_transaction'));
+
 		add_action( 'admin_enqueue_scripts', array( &$this, 'Endorsement_load_js_and_css' ));
 		
 		add_role( 'endorser', 'Endorser');
@@ -210,6 +213,7 @@
 			   post_data text NOT NULL,
 			   tracker_id tinytext NOT NULL,
 			   type tinytext NOT NULL,
+			   share_from tinytext NOT NULL,
 			  PRIMARY KEY  (id) ) ENGINE=InnoDB";
 
 			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
@@ -287,6 +291,22 @@
 			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 			dbDelta($sql_one);
 		}
+
+		$mailtemplates = "points_request";
+		
+		if($wpdb->get_var('SHOW TABLES LIKE "' . $mailtemplates .'"') != $mailtemplates){
+			$sql_one = "CREATE TABLE " . $mailtemplates . "(
+			  id int(11) NOT NULL AUTO_INCREMENT,
+			   request_on datetime NOT NULL,
+			   points int(11),
+			   endorser_id int(11),
+			   status int(11),
+			   notes text,
+			  PRIMARY KEY  (id) ) ENGINE=InnoDB";
+
+			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+			dbDelta($sql_one);
+		}
 	}
 	
 	function Endorsement_uninstall()
@@ -306,6 +326,20 @@
 		return $ntm_front->frontend();
 	}
 	
+	function Endorsement_redeem_points()
+	{
+		global $ntm_front;
+
+		return $ntm_front->redeem_points();
+	}
+
+	function Endorsement_redeem_requests()
+	{
+		global $ntm_front;
+
+		return $ntm_front->redeem_requests();
+	}
+
 	function Endorsement_load_js_and_css()
 	{
 		

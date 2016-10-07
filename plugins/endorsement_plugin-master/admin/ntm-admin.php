@@ -16,7 +16,8 @@ class Endorsements_admin{
 			add_submenu_page( 'ntmEndorsements', 'Endorsements', 'Send Gift By Manual',  9, 'send_gift_manual', array( &$this, 'send_gift_manual'));
 			add_submenu_page( 'ntmEndorsements', 'Endorsements', 'Gift Transaction History',  9, 'gift_transaction_history', array( &$this, 'gift_transaction_history'));
 			add_submenu_page( 'ntmEndorsements', 'Endorsements', 'Visa Transaction History',  9, 'visa_transaction_history', array( &$this, 'visa_transaction_history'));
-			add_submenu_page( 'ntmEndorsements', 'Endorsements', 'Settings',  9, 'ntmEndorsements_settings', array( &$this, 'settingsPage'));		
+			add_submenu_page( 'ntmEndorsements', 'Endorsements', 'Settings',  9, 'ntmEndorsements_settings', array( &$this, 'settingsPage'));
+			add_submenu_page( 'ntmEndorsements', 'Endorsements', 'Points Request',  9, 'points_request', array( &$this, 'points_request'));		
         
         } else {
             
@@ -1114,6 +1115,35 @@ class Endorsements_admin{
 						<script src="<?php _e(NTM_PLUGIN_URL);?>/assets/js/jquery.colorbox-min.js"></script>
 						<?php
 							$endosersTable = new VisaTable();
+							$endosersTable->prepare_items();
+							$endosersTable->display();
+						?>
+					</form>
+				</div>
+			</div>
+		</div> 
+		<?php
+	}
+
+	function points_request()
+	{
+		global $wpdb;
+
+		if(isset($_GET['action']) && $_GET['action'] == 'change_status')
+		{
+			
+		}
+		?>
+		<div id="poststuff" class="wrap">
+		<h2>Visa Transaction Details</h2>
+		
+			<div class="postbox">
+				<div class="inside group">
+					<form name="myform" method="post" >
+						<link rel="stylesheet" href="<?php _e(NTM_PLUGIN_URL);?>/assets/css/colorbox.css" />
+						<script src="<?php _e(NTM_PLUGIN_URL);?>/assets/js/jquery.colorbox-min.js"></script>
+						<?php
+							$endosersTable = new RequestTable();
 							$endosersTable->prepare_items();
 							$endosersTable->display();
 						?>

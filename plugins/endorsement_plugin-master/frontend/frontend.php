@@ -286,7 +286,8 @@ Class NTM_Frontend
 					"created" => date("Y-m-d H:i:s"), 
 					"email" => $ex2[0],
 					"endorser_id" => $current_user->ID,
-					"tracker_id" => wp_generate_password( $length=12, $include_standard_special_chars=false )
+					"tracker_id" => wp_generate_password( $length=12, $include_standard_special_chars=false ),
+					"share_from" => get_permalink()
 				);
 				$wpdb->insert($wpdb->prefix . "endorsements", $info);
 				$send_mail = $ntm_mail->send_invitation_mail($info, $current_user->ID, $wpdb->insert_id, $endorse_letter);
@@ -314,5 +315,102 @@ Class NTM_Frontend
 			return true;
 		}
 		return false;
+	}
+
+	function redeem_points()
+	{
+		global $wpdb, $current_user, $ntm_mail, $endorsements;
+
+		if(!is_user_logged_in() && !in_array( 'endorser', $current_user->roles ))
+			return;
+
+		$endorser_points = $endorsements->get_endorser_points($current_user->ID);
+
+		if(isset($_POST['reward_redeem']) && $endorser_points >= 25 && $endorser_points >= $_POST['points'] && 10000 >= $_POST['points'])
+		{
+			$data = array(
+				"request_on" => date("Y-m-d H:i:s"),
+				"endorser_id" => $current_user->ID,
+				"points" => $_POST['points']
+			);
+			$wpdb->insert($wpdb->prefix . "points_request", $data);
+		}
+		else
+			$msg = '<p>Invalid request</p>';
+		?>
+		<h3>Redeem Rewards</h3>
+		<?= isset($msg) ? $msg : '';?>
+		Your Points <?= $endorsements->get_endorser_points($current_user->ID); ?>
+		<form method="post">
+			<div>
+				<label>Enter you points to redeem</label>
+				<input name="points" type="number" minlength="25" maxlength="10000">
+			</div>
+			<input type="submit" name="reward_redeem">
+		</form>
+		<?php
+	}
+
+	function redeem_requests()
+	{
+		global $wpdb, $current_user, $ntm_mail, $endorsements;
+
+		if(!is_user_logged_in() && !in_array( 'endorser', $current_user->roles ))
+			return;
+		$results = $wpdb->get_results('select * from '.$wpdb->prefix . "points_request where endorser_id=".$current_user->ID. " order by id desc");
+		$st = array("Pending", "Accepted", "Cancelled");
+		?>
+		<h3>Redeem Requests</h3>
+		Your Points <?= $endorsements->get_endorser_points($current_user->ID); ?>
+		<table width="100%">
+			<tr>
+				<th>#</th>
+				<th>Request on</th>
+				<th>Points</th>
+				<th>Status</th>
+				<th>Notes</th>
+			</tr>
+			<?php foreach($results as $k=>$res){?>
+			<tr>
+				<td><?= $k+1; ?></td>
+				<td><?= $res->request_on; ?></td>
+				<td><?= $res->points; ?></td>
+				<td><?= $st[$res->status]; ?></td>
+				<td><?= $res->notes; ?></td>
+			</tr>
+			<?php }?>
+		</table>
+		<?php
+	}
+
+	function points_transaction()
+	{
+		global $wpdb, $current_user, $ntm_mail, $endorsements;
+
+		if(!is_user_logged_in() && !in_array( 'endorser', $current_user->roles ))
+			return;
+		$results = $wpdb->get_results('select * from '.$wpdb->prefix . "points_transaction where endorser_id=".$current_user->ID. " order by id desc");
+		?>
+		<h3>Points Transactions</h3>
+		Your Points <?= $endorsements->get_endorser_points($current_user->ID); ?>
+		<table width="100%">
+			<tr>
+				<th>#</th>
+				<th>Transaction type</th>
+				<th>Transaction on</th>
+				<th>Points</th>
+				<th>New Balance</th>
+			</tr>
+			<?php foreach($results as $k=>$res){?>
+			<tr>
+				<td><?= $k+1; ?></td>
+				<td><?= $res->type; ?></td>
+				<td><?= $res->transaction_on; ?></td>
+				<td><?= $res->points; ?></td>
+				<td><?= $res->new_balance; ?></td>
+			</tr>
+			<?php }?>
+		</table>
+		<?php
 	}
 }
