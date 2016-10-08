@@ -1129,14 +1129,18 @@ class Endorsements_admin{
 	{
 		global $wpdb;
 
-		if(isset($_GET['action']) && $_GET['action'] == 'change_status')
+		if(isset($_POST['notes_submit']))
 		{
-			
+			$wpdb->update($wpdb->prefix . "points_request", array('status' => 2, 'notes' => $_POST['notes']), array('id' => $_POST['id']));
 		}
+		elseif(isset($_GET['action']) && $_GET['action'] == 'change_status')
+		{
+			$wpdb->update($wpdb->prefix . "points_request", array('status' => 1), array('id' => $_GET['id']));
+		}
+		
 		?>
 		<div id="poststuff" class="wrap">
-		<h2>Visa Transaction Details</h2>
-		
+		<h2>Points requests
 			<div class="postbox">
 				<div class="inside group">
 					<form name="myform" method="post" >
@@ -1148,9 +1152,26 @@ class Endorsements_admin{
 							$endosersTable->display();
 						?>
 					</form>
+
+					<div style="display: none;">
+						<form method="post" id="cancel_content">
+							<label>Reason for Cancel</label><br>
+							<textarea rows="5" cols="60" name="notes"></textarea><br>
+							<input id="cancel_id" type="hidden" name="id">
+							<input type="submit" name="notes_submit">
+						</form>
+					</div>
 				</div>
 			</div>
-		</div> 
+		</div>
+		<script type="text/javascript">
+			jQuery(document).ready(function(){
+				jQuery(".inline").colorbox({inline:true, width:"80%", height:"80%"});
+				jQuery(".inline").click(function(){
+					jQuery("#cancel_id").val(jQuery(this).data("id"));
+				});
+			});
+		</script> 
 		<?php
 	}
 } //end class endorsements

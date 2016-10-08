@@ -28,7 +28,8 @@
 		//register_uninstall_hook(__FILE__, array( &$this, 'Endorsement_uninstall'));
 		
 		add_shortcode('ENDORSEMENT_FRONT_END', array( &$this, 'Endorsement_frontend'));
-		add_shortcode('ENDORSER_REDEEM_REWARD', array( &$this, 'Endorsement_redeem_requests'));
+		add_shortcode('ENDORSER_REDEEM_REQUESTS', array( &$this, 'Endorsement_redeem_requests'));
+		add_shortcode('ENDORSER_REDEEM_POINTS', array( &$this, 'Endorsement_redeem_points'));
 		add_shortcode('ENDORSER_POINTS_TRANSACTION', array( &$this, 'Endorsement_points_transaction'));
 
 		add_action( 'admin_enqueue_scripts', array( &$this, 'Endorsement_load_js_and_css' ));
@@ -90,7 +91,7 @@
 	{
 		global $wpdb;
 
-		$result = $wpdb->get_row("select * from ".$wpdb->prefix . "points_transaction order by id desc");
+		$result = $wpdb->get_row("select * from ".$wpdb->prefix . "points_transaction where endorser_id=".$endorser_id." order by id desc");
 
 		return isset($result->new_balance) ? $result->new_balance : 0;
 	}
@@ -273,7 +274,7 @@
 			dbDelta($sql_one);
 		}
 
-		$mailtemplates = "points_transaction";
+		$mailtemplates = $wpdb->prefix . "points_transaction";
 		
 		if($wpdb->get_var('SHOW TABLES LIKE "' . $mailtemplates .'"') != $mailtemplates){
 			$sql_one = "CREATE TABLE " . $mailtemplates . "(
@@ -292,7 +293,7 @@
 			dbDelta($sql_one);
 		}
 
-		$mailtemplates = "points_request";
+		$mailtemplates = $wpdb->prefix . "points_request";
 		
 		if($wpdb->get_var('SHOW TABLES LIKE "' . $mailtemplates .'"') != $mailtemplates){
 			$sql_one = "CREATE TABLE " . $mailtemplates . "(
@@ -331,6 +332,13 @@
 		global $ntm_front;
 
 		return $ntm_front->redeem_points();
+	}
+
+	function Endorsement_points_transaction()
+	{
+		global $ntm_front;
+
+		return $ntm_front->points_transaction();
 	}
 
 	function Endorsement_redeem_requests()

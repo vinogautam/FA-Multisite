@@ -321,22 +321,27 @@ Class NTM_Frontend
 	{
 		global $wpdb, $current_user, $ntm_mail, $endorsements;
 
-		if(!is_user_logged_in() && !in_array( 'endorser', $current_user->roles ))
+		if(!is_user_logged_in() || !in_array( 'endorser', $current_user->roles ))
 			return;
 
 		$endorser_points = $endorsements->get_endorser_points($current_user->ID);
 
-		if(isset($_POST['reward_redeem']) && $endorser_points >= 25 && $endorser_points >= $_POST['points'] && 10000 >= $_POST['points'])
+		if(isset($_POST['reward_redeem']))
 		{
-			$data = array(
-				"request_on" => date("Y-m-d H:i:s"),
-				"endorser_id" => $current_user->ID,
-				"points" => $_POST['points']
-			);
-			$wpdb->insert($wpdb->prefix . "points_request", $data);
+			if($endorser_points >= 25 && $endorser_points >= $_POST['points'] && 10000 >= $_POST['points'])
+			{
+				$data = array(
+					"request_on" => date("Y-m-d H:i:s"),
+					"endorser_id" => $current_user->ID,
+					"points" => $_POST['points'],
+					"status" => 0
+				);
+				$wpdb->insert($wpdb->prefix . "points_request", $data);
+			}
+			else
+				$msg = '<p>Invalid request</p>';
 		}
-		else
-			$msg = '<p>Invalid request</p>';
+		
 		?>
 		<h3>Redeem Rewards</h3>
 		<?= isset($msg) ? $msg : '';?>
@@ -355,7 +360,7 @@ Class NTM_Frontend
 	{
 		global $wpdb, $current_user, $ntm_mail, $endorsements;
 
-		if(!is_user_logged_in() && !in_array( 'endorser', $current_user->roles ))
+		if(!is_user_logged_in() || !in_array( 'endorser', $current_user->roles ))
 			return;
 		$results = $wpdb->get_results('select * from '.$wpdb->prefix . "points_request where endorser_id=".$current_user->ID. " order by id desc");
 		$st = array("Pending", "Accepted", "Cancelled");
@@ -387,7 +392,7 @@ Class NTM_Frontend
 	{
 		global $wpdb, $current_user, $ntm_mail, $endorsements;
 
-		if(!is_user_logged_in() && !in_array( 'endorser', $current_user->roles ))
+		if(!is_user_logged_in() || !in_array( 'endorser', $current_user->roles ))
 			return;
 		$results = $wpdb->get_results('select * from '.$wpdb->prefix . "points_transaction where endorser_id=".$current_user->ID. " order by id desc");
 		?>

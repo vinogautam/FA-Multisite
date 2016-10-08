@@ -853,7 +853,7 @@ class RequestTable extends WP_List_Table {
             case 'status':
                 return $st[$item[$column_name]];
             case 'action':    
-                return $item['status'] == 0 ? '<a href="?action=change_status&status=2&id='.$item['id'].'">Accept</a><a href="#cancel">Cancel</a>' : '';
+                return $item['status'] == 0 ? '<a href="?page=points_request&action=change_status&status=2&id='.$item['id'].'">Accept</a>&nbsp;&nbsp;<a data-id="'.$item['id'].'" class="inline" href="#cancel_content">Reject</a>' : '';
             case 'request_on':
                 return date('Y/m/d H:i', strtotime($item[$column_name]));
             
@@ -892,7 +892,8 @@ class RequestTable extends WP_List_Table {
     
     function get_columns(){
         $columns = array(
-            'cb'        => '<input type="checkbox" />', //Render a checkbox instead of text
+            //'cb'        => '<input type="checkbox" />', //Render a checkbox instead of text
+            'title'     => 'Endorser',
             'points'     => 'Points',
             'request_on'    => 'Request on',
             'status'    => 'Status',
@@ -951,7 +952,7 @@ class RequestTable extends WP_List_Table {
             return $d;
         }
         }
-        $data = objectToArray($wpdb->get_results("select * from ".$wpdb->prefix . "points_transaction"));
+        $data = objectToArray($wpdb->get_results("select * from ".$wpdb->prefix . "points_request"));
         $newdat = array();
         foreach($data as $v){
             $newdat[] = $v;
