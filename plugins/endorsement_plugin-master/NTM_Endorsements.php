@@ -50,8 +50,41 @@
 
 		add_action( 'init', array( &$this, 'autologin') );
 		add_filter( 'login_redirect', array( &$this, 'my_login_redirect'), 10, 3 );
+
+		add_action( 'wp_ajax_social_share', array( &$this, 'social_share'), 100 );
+		add_action( 'wp_ajax_nopriv_social_share', array( &$this, 'social_share'), 100 );
+		add_action( 'wp_ajax_check_social_share', array( &$this, 'check_social_share'), 100 );
+		add_action( 'wp_ajax_nopriv_check_social_share', array( &$this, 'check_social_share'), 100 );
 	}
 	
+	function check_social_share()
+	{
+		$fb_id = get_user_meta($_GET['user_id'], 'fb_id', true);
+		$fb_id = is_array($fb_id) ? $fb_id : array();
+
+		if(!in_array($_GET['id'], $fb_id))
+			echo 1;
+
+		die(0);
+	}
+
+	function social_share()
+	{
+		$fb_id = get_user_meta($_GET['user_id'], 'fb_id', true);
+		$fb_id = is_array($fb_id) ? $fb_id : array();
+		$fb_id[] = $_GET['id'];
+		update_user_meta($_GET['user_id'], 'fb_id', $fb_id);
+
+		$points = 50;
+		$type = 'FB share';
+
+		$new_balance = $this->get_endorser_points($_GET['user_id']) + $points;
+		$data = array('points' => $points, 'credit' => 1, 'endorser_id' => $_GET['user_id'], 'new_balance' => $new_balance, 'transaction_on' => date("Y-m-d H:i:s"), 'type' => $type);
+		$this->add_points($data);
+
+		die(0);
+	}
+
 	function my_login_redirect( $redirect_to, $request, $user ) {
 		//is there a user to check?
 		
