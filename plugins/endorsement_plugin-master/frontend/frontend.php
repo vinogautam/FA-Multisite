@@ -51,6 +51,15 @@ Class NTM_Frontend
 	    fjs.parentNode.insertBefore(js, fjs);
 	  }(document, 'script', 'facebook-jssdk'));
 
+      window.fbAsyncInit = function() {
+	  FB.init({
+	    appId      : '1801608280082028',
+	    cookie     : true,  // enable cookies to allow the server to access 
+	                        // the session
+	    xfbml      : true,  // parse social plugins on this page
+	    version    : 'v2.5' // use graph api version 2.5
+	  });
+      
       	function checkLoginState() {
 		    FB.getLoginStatus(function(response) {
 		     	if (response.status === 'connected') {
