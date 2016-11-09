@@ -10,6 +10,9 @@
  $dir = pathinfo(__FILE__);
  define('NTM_PLUGIN_URL', plugin_dir_url( __FILE__ ));
  define('NTM_PLUGIN_DIR',$dir['dirname']);
+
+ define('FB_APP_ID', '1801608280082028');
+ define('LI_APP_ID', '865r9ywbcc2tra');
  
  include 'includes.php';
  

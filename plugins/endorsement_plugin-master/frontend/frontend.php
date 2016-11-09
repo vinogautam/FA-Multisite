@@ -40,7 +40,7 @@ Class NTM_Frontend
     <link rel="stylesheet" type="text/css" href="<?php _e(NTM_PLUGIN_URL);?>/assets/css/ckeditor.css" media="all" />
     <script type='text/javascript' src='<?php _e(NTM_PLUGIN_URL);?>/assets/js/ckeditor/ckeditor.js'></script>
     <script type="text/javascript" src="http://platform.linkedin.com/in.js">
-    	api_key: 865r9ywbcc2tra
+    	api_key: <?= LI_APP_ID; ?>
 	    authorize: true
 	</script>
     <script>
@@ -57,7 +57,7 @@ Class NTM_Frontend
 
       window.fbAsyncInit = function() {
 	  FB.init({
-	    appId      : '1801608280082028',
+	    appId      : '<?= FB_APP_ID; ?>',
 	    cookie     : true,  // enable cookies to allow the server to access 
 	                        // the session
 	    xfbml      : true,  // parse social plugins on this page
@@ -91,7 +91,7 @@ Class NTM_Frontend
 		}
 
 		var payload = { 
-	      "comment": "<?php echo get_permalink($pagelink).'?ref='.base64_encode(base64_encode($current_user->ID.'#&$#fb'));?>", 
+	      "comment": "<?php echo get_permalink($pagelink).'?ref='.base64_encode(base64_encode($current_user->ID.'#&$#li'));?>", 
 	      "visibility": { 
 	        "code": "anyone"
 	      } 

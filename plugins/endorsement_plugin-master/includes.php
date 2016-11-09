@@ -30,6 +30,93 @@ class CloudSponge_Widget extends WP_Widget {
 		<link rel="stylesheet" type="text/css" href="<?php _e(NTM_PLUGIN_URL);?>/assets/css/ckeditor.css" media="all" />
     	<script type='text/javascript' src='<?php _e(NTM_PLUGIN_URL);?>/assets/js/ckeditor/ckeditor.js'></script>
 		<script>
+		  (function(d, s, id) {
+	    var js, fjs = d.getElementsByTagName(s)[0];
+	    if (d.getElementById(id)) return;
+	    js = d.createElement(s); js.id = id;
+	    js.src = "//connect.facebook.net/en_US/sdk.js";
+	    fjs.parentNode.insertBefore(js, fjs);
+	  }(document, 'script', 'facebook-jssdk'));
+
+      window.fbAsyncInit = function() {
+	  FB.init({
+	    appId      : '<?= FB_APP_ID; ?>',
+	    cookie     : true,  // enable cookies to allow the server to access 
+	                        // the session
+	    xfbml      : true,  // parse social plugins on this page
+	    version    : 'v2.5' // use graph api version 2.5
+	  });
+      
+      	function checkLoginState() {
+		    FB.getLoginStatus(function(response) {
+		     	if (response.status === 'connected') {
+		     		FB.api('/me', function(response) {
+						jQuery.get('<?php echo site_url();?>/wp-admin/admin-ajax.php?action=check_social_share&user_id=<?= $current_user->ID; ?>&id='+response.id).then(function(res){
+							if(res)
+							{
+								FB.ui(
+								{
+								  method: 'share',
+								  href: '<?php echo get_permalink($pagelink).'?ref='.base64_encode(base64_encode($current_user->ID.'#&$#fb'));?>'
+								}, function(response1){
+									jQuery.get('<?php echo site_url();?>/wp-admin/admin-ajax.php?action=social_share&user_id=<?= $current_user->ID; ?>&id='+response.id).then(function(res){
+									
+									});
+								});
+							}
+						});
+						
+				    });
+					
+					
+			    }
+		    });
+		}
+
+		var payload = { 
+	      "comment": "<?php echo get_permalink($pagelink).'?ref='.base64_encode(base64_encode($current_user->ID.'#&$#li'));?>", 
+	      "visibility": { 
+	        "code": "anyone"
+	      } 
+	    };
+	    var reqestId;
+	    function successhare(data) {
+	    	jQuery.get('<?php echo site_url();?>/wp-admin/admin-ajax.php?action=social_share&user_id=<?= $current_user->ID; ?>&id='+reqestId).then(function(res){
+									
+				});
+	    }
+
+		function onSuccess(data) {
+	        reqestId = data.id;
+			
+			jQuery.get('<?php echo site_url();?>/wp-admin/admin-ajax.php?action=check_social_share&user_id=<?= $current_user->ID; ?>&id='+reqestId).then(function(res){
+				if(res)
+				{
+					IN.API.Raw("/people/~/shares?format=json")
+					  .method("POST")
+					  .body(JSON.stringify(payload))
+					  .result(successhare)
+					  .error(onError);
+				}
+			});
+	    }
+
+	    // Handle an error response from the API call
+	    function onError(error) {
+	        console.log(error);
+	    }
+
+		function getProfileData() {
+			console.log('fgggghf');
+	        IN.API.Raw("/people/~").result(onSuccess).error(onError);
+			
+	    }
+
+		function checkLoginStateLinkedin() {
+			IN.UI.Authorize().params({"scope":["r_basicprofile", "r_emailaddress"]}).place();
+			IN.Event.on(IN, "auth", getProfileData);
+		}
+
 		  (function(u){
 			var d=document,s='script',a=d.createElement(s),m=d.getElementsByTagName(s)[0];
 			a.async=1;a.src=u;m.parentNode.insertBefore(a,m);
@@ -60,6 +147,13 @@ class CloudSponge_Widget extends WP_Widget {
 				  }
 			};
 		</script>
+		<div class="social_share">
+			<a onclick="checkLoginState()"><img src="<?php _e(plugin_dir_url( __FILE__ ));?>../icon-set/fbshare.png"/></a>
+			<a onclick="checkLoginStateLinkedin()"><img src="<?php _e(plugin_dir_url( __FILE__ ));?>../icon-set/linkedin.png"/></a>
+			<!-- <a onclick="window.open('http://www.facebook.com/sharer.php?u='+encodeURIComponent('<?php echo get_permalink($pagelink).'?ref='.base64_encode(base64_encode($current_user->ID.'#&$#fb'));?>'),'sharer','toolbar=0,status=0,width=626,height=436');return false;"><img src="<?php _e(plugin_dir_url( __FILE__ ));?>../icon-set/fbshare.png"/></a> -->
+			<a onclick="window.open('https://twitter.com/intent/tweet?text=<?php echo get_option('twitter_text');?>&url='+encodeURIComponent('<?php echo get_permalink($pagelink).'?ref='.base64_encode(base64_encode($current_user->ID.'#&$#tw'));?>'),'sharer','toolbar=0,status=0,width=626,height=436');return false;"><img src="<?php _e(plugin_dir_url( __FILE__ ));?>../icon-set/twshare.png"/></a>
+		</div>
+		<br>
 		<div class="social_button">
 			<?php if($instance['linkedin']){?><a class="deep-link desktop-only" style="display: none;" onclick="return cloudsponge.launch('linkedin');"><img src="<?php _e(plugin_dir_url( __FILE__ ));?>/icon-set/linkedin.png"/></a>
 			<?php } if($instance['yahoo']){?>
