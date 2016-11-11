@@ -29,6 +29,10 @@ class CloudSponge_Widget extends WP_Widget {
 		?>
 		<link rel="stylesheet" type="text/css" href="<?php _e(NTM_PLUGIN_URL);?>/assets/css/ckeditor.css" media="all" />
     	<script type='text/javascript' src='<?php _e(NTM_PLUGIN_URL);?>/assets/js/ckeditor/ckeditor.js'></script>
+		<script type="text/javascript" src="http://platform.linkedin.com/in.js">
+	    	api_key: <?= LI_APP_ID; ?>
+		    authorize: true
+		</script>
 		<script>
 		  (function(d, s, id) {
 	    var js, fjs = d.getElementsByTagName(s)[0];

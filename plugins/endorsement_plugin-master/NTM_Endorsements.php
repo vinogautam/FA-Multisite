@@ -13,6 +13,7 @@
 
  define('FB_APP_ID', '1801608280082028');
  define('LI_APP_ID', '865r9ywbcc2tra');
+ define('PI_APP_ID', '4867120598806966651');
  
  include 'includes.php';
  

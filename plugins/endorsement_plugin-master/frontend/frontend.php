@@ -45,8 +45,6 @@ Class NTM_Frontend
 	</script>
     <script>
 
-    	
-
       (function(d, s, id) {
 	    var js, fjs = d.getElementsByTagName(s)[0];
 	    if (d.getElementById(id)) return;
@@ -134,6 +132,54 @@ Class NTM_Frontend
 			IN.Event.on(IN, "auth", getProfileData);
 		}
 
+		/* Linked In share*/
+		(function(d, s, id){
+	        var js, pjs = d.getElementsByTagName(s)[0];
+	        if (d.getElementById(id)) {return;}
+	        js = d.createElement(s); js.id = id;
+	        js.src = "//assets.pinterest.com/sdk/sdk.js";
+	        pjs.parentNode.insertBefore(js, pjs);
+	    }(document, 'script', 'pinterest-jssdk'));
+
+    	window.pAsyncInit = function() {
+	        PDK.init({
+	            appId: "<?= PI_APP_ID; ?>", // Change this
+	            cookie: true
+	        });
+	    }
+        
+		function checkLoginStatePinterest() {
+			PDK.login({ scope : 'read_relationships,read_public' }, function(response){
+	            if (!response || response.error) {
+	              //alert('Error occurred');
+	            } else {
+	               //console.log(JSON.stringify(response));
+	            }
+	        //get board info
+				var pins = [];
+				PDK.request('/v1/me/', function (response) {
+				  if (!response || response.error) {
+					//alert('Error occurred');
+				  } else {
+					console.log(JSON.stringify(response));
+					//console.log(PDK.getSession().accessToken);
+					
+					reqestId = response.id;
+			
+					jQuery.get('<?php echo site_url();?>/wp-admin/admin-ajax.php?action=check_social_share&user_id=<?= $current_user->ID; ?>&id='+reqestId).then(function(res){
+						if(res)
+						{
+
+						PDK.pin("http://financialinsiders.ca/wp-content/themes/fi-2016/includes/images/financial-insiders-logo.png", "http://financialinsiders.ca/", "http://financialinsiders.ca/", successhare);
+						}
+					});
+				  }
+				});
+	        });
+		}
+
+		/* End Linked In share*/
+
 	  (function(u){
 		var d=document,s='script',a=d.createElement(s),m=d.getElementsByTagName(s)[0];
 		a.async=1;a.src=u;m.parentNode.insertBefore(a,m);
@@ -179,6 +225,7 @@ Class NTM_Frontend
 					<div class="social_share">
 						<a onclick="checkLoginState()"><img src="<?php _e(plugin_dir_url( __FILE__ ));?>../icon-set/fbshare.png"/></a>
 						<a onclick="checkLoginStateLinkedin()"><img src="<?php _e(plugin_dir_url( __FILE__ ));?>../icon-set/linkedin.png"/></a>
+						<a onclick="checkLoginStatePinterest()">Pinterest</a>
 						<!-- <a onclick="window.open('http://www.facebook.com/sharer.php?u='+encodeURIComponent('<?php echo get_permalink($pagelink).'?ref='.base64_encode(base64_encode($current_user->ID.'#&$#fb'));?>'),'sharer','toolbar=0,status=0,width=626,height=436');return false;"><img src="<?php _e(plugin_dir_url( __FILE__ ));?>../icon-set/fbshare.png"/></a> -->
 						<a onclick="window.open('https://twitter.com/intent/tweet?text=<?php echo get_option('twitter_text');?>&url='+encodeURIComponent('<?php echo get_permalink($pagelink).'?ref='.base64_encode(base64_encode($current_user->ID.'#&$#tw'));?>'),'sharer','toolbar=0,status=0,width=626,height=436');return false;"><img src="<?php _e(plugin_dir_url( __FILE__ ));?>../icon-set/twshare.png"/></a>
 					</div>
